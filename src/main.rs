@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
@@ -6,20 +8,23 @@ fn main() -> Result<()> {
     println!("Welcome to Minishell");
 
     loop {
-        let readline = rl.readline(">> Minishell ");
+        let readline = rl.readline("minishell> ");
 
         match readline {
-            Ok(line) => println!("{line}"),
+            Ok(line) => {
+                Command::new(line).status().expect("failed to execut");
+            }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
-                break;
+
+                continue;
             }
             Err(ReadlineError::Eof) => {
                 println!("CTRL-D");
                 break;
             }
             Err(err) => {
-                println!("Error: {:?}", err);
+                eprintln!("Error: {:?}", err);
                 break;
             }
         }
