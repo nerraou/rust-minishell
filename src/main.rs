@@ -12,7 +12,11 @@ fn main() -> Result<()> {
 
         match readline {
             Ok(line) => {
-                Command::new(line).status().expect("failed to execut");
+                let mut parse = line.split_whitespace();
+                Command::new(parse.next().unwrap_or("ls"))
+                    .args(parse)
+                    .status()
+                    .expect("failed to execute");
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
