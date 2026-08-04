@@ -13,7 +13,12 @@ fn main() -> Result<()> {
         match readline {
             Ok(line) => {
                 let mut parse = line.split_whitespace();
-                Command::new(parse.next().unwrap_or("ls"))
+
+                let Some(program) = parse.next() else {
+                    continue;
+                };
+
+                Command::new(program)
                     .args(parse)
                     .status()
                     .expect("failed to execute");
