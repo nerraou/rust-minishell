@@ -1,7 +1,10 @@
 use std::process::Command;
 
+pub mod shell;
+
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
+use shell::parser::tokenize;
 
 fn main() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
@@ -12,6 +15,9 @@ fn main() -> Result<()> {
 
         match readline {
             Ok(line) => {
+                let tokens = tokenize(&line);
+
+                println!("the tokens : {:?}", tokens);
                 let mut parse = line.split_whitespace();
 
                 let Some(program) = parse.next() else {
