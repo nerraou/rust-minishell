@@ -1,10 +1,10 @@
 use std::process::Command;
 
-pub mod shell;
-
+pub mod lexer;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
-use shell::parser::tokenize;
+
+use crate::lexer::tokenizer::tokenize;
 
 fn main() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
