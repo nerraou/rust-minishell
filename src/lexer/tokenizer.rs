@@ -13,7 +13,11 @@ pub fn skip_whitespace<'a>(iter: &mut Peekable<Chars<'a>>) {
     iter.next();
 }
 
-pub fn read_quoted(iter: &mut Peekable<Chars>, tokens: &mut Vec<Token>, quote: char) {
+pub fn read_quoted(
+    iter: &mut Peekable<Chars>,
+    tokens: &mut Vec<Token>,
+    quote: char,
+) -> Result<(), LexerError> {
     iter.next();
     let mut word = String::new();
     while let Some(c) = iter.next() {
@@ -27,10 +31,12 @@ pub fn read_quoted(iter: &mut Peekable<Chars>, tokens: &mut Vec<Token>, quote: c
                 text: word,
                 quote: quote_type,
             }));
-            break;
+            return Ok(());
         }
+
         word.push(c);
     }
+    return Err(LexerError::UnclosedQuote(quote));
 }
 
 pub fn read_word(iter: &mut Peekable<Chars>, tokens: &mut Vec<Token>) {
@@ -54,9 +60,9 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, LexerError> {
     while let Some(&value) = iter.peek() {
         match value {
             c if c.is_whitespace() => skip_whitespace(&mut iter),
-            '\'' | '\"' => read_quoted(&mut iter, &mut tokens, value),
+            '\'' | '\"' => read_quoted(&mut iter, &mut tokens, value)?,
             c if c.is_alphabetic() => read_word(&mut iter, &mut tokens),
-            _ => {}
+            _ => return Err(LexerError::UnexpectedCharacter(value)),
         }
     }
     Ok(tokens)

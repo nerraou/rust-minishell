@@ -1,5 +1,5 @@
 #[derive(Debug)]
 pub enum LexerError {
-    UnterminatedSingleQuote,
-    UnterminatedDoubleQuote,
+    UnclosedQuote(char),
+    UnexpectedCharacter(char),
 }
