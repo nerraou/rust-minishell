@@ -66,8 +66,6 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, LexerError> {
         match value {
             c if c.is_whitespace() => skip_whitespace(&mut iter),
             '\'' | '\"' => read_quoted(&mut iter, &mut tokens, value)?,
-            c if c.is_alphabetic() => read_word(&mut iter, &mut tokens),
-
             '|' => {
                 tokens.push(Token::Pipe);
                 iter.next();
@@ -99,7 +97,7 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, LexerError> {
                     tokens.push(Token::RedirectIn);
                 }
             }
-            _ => return Err(LexerError::UnexpectedCharacter(value)),
+            _ => read_word(&mut iter, &mut tokens),
         }
     }
     Ok(tokens)
