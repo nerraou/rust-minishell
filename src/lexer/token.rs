@@ -12,8 +12,9 @@ pub struct WordState {
 #[derive(Debug)]
 pub enum Token {
     Word(WordState),
-    // Pipe,
-    // RedirectIn,
-    // RedirectOut,
-    // RedirectAppend,
+    Pipe,
+    RedirectIn,
+    RedirectOut,
+    RedirectAppend,
+    Heredoc,
 }

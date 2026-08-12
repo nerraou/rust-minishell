@@ -2,11 +2,7 @@ use std::{iter::Peekable, str::Chars};
 
 use crate::lexer::{
     error::LexerError,
-    token::{
-        QuoteState,
-        Token::{self, Word},
-        WordState,
-    },
+    token::{QuoteState, Token, WordState},
 };
 
 pub fn skip_whitespace<'a>(iter: &mut Peekable<Chars<'a>>) {
@@ -27,7 +23,7 @@ pub fn read_quoted(
             } else {
                 QuoteState::Double
             };
-            tokens.push(Word(WordState {
+            tokens.push(Token::Word(WordState {
                 text: word,
                 quote: quote_type,
             }));
@@ -39,15 +35,24 @@ pub fn read_quoted(
     return Err(LexerError::UnclosedQuote(quote));
 }
 
+pub fn is_token(value: char) -> bool {
+    if value == '|' || value == '<' || value == '>' {
+        return true;
+    }
+
+    false
+}
+
 pub fn read_word(iter: &mut Peekable<Chars>, tokens: &mut Vec<Token>) {
     let mut word = String::new();
-    while let Some(c) = iter.next() {
-        if c.is_whitespace() {
+    while let Some(&c) = iter.peek() {
+        if c.is_whitespace() || is_token(c) {
             break;
         }
+        iter.next();
         word.push(c);
     }
-    tokens.push(Word(WordState {
+    tokens.push(Token::Word(WordState {
         text: word,
         quote: QuoteState::None,
     }));
@@ -62,6 +67,38 @@ pub fn tokenize(input: &str) -> Result<Vec<Token>, LexerError> {
             c if c.is_whitespace() => skip_whitespace(&mut iter),
             '\'' | '\"' => read_quoted(&mut iter, &mut tokens, value)?,
             c if c.is_alphabetic() => read_word(&mut iter, &mut tokens),
+
+            '|' => {
+                tokens.push(Token::Pipe);
+                iter.next();
+            }
+
+            '>' => {
+                iter.next();
+                if let Some(&next) = iter.peek() {
+                    if next == '>' {
+                        tokens.push(Token::RedirectAppend);
+                        iter.next();
+                    } else {
+                        tokens.push(Token::RedirectOut);
+                    }
+                } else {
+                    tokens.push(Token::RedirectOut);
+                }
+            }
+            '<' => {
+                iter.next();
+                if let Some(&next) = iter.peek() {
+                    if next == '<' {
+                        tokens.push(Token::Heredoc);
+                        iter.next();
+                    } else {
+                        tokens.push(Token::RedirectIn);
+                    }
+                } else {
+                    tokens.push(Token::RedirectIn);
+                }
+            }
             _ => return Err(LexerError::UnexpectedCharacter(value)),
         }
     }

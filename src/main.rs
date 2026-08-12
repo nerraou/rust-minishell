@@ -24,10 +24,10 @@ fn main() -> Result<()> {
                     continue;
                 };
 
-                Command::new(program)
-                    .args(parse)
-                    .status()
-                    .expect("failed to execute");
+                // Command::new(program)
+                //     .args(parse)
+                //     .status()
+                //     .expect("failed to execute");
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
