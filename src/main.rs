@@ -1,10 +1,12 @@
 use std::process::Command;
 
 pub mod lexer;
+pub mod parser;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
 use crate::lexer::tokenizer::tokenize;
+use crate::parser::parser::parse_command;
 
 fn main() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
@@ -15,19 +17,21 @@ fn main() -> Result<()> {
 
         match readline {
             Ok(line) => {
-                let tokens = tokenize(&line);
+                let tokens = tokenize(&line).unwrap();
 
                 println!("the tokens : {:?}", tokens);
-                let mut parse = line.split_whitespace();
+                let parse = parse_command(tokens).unwrap();
 
-                let Some(program) = parse.next() else {
-                    continue;
-                };
+                println!("parsed '{}'", parse.program);
+                println!("parsed '{:?}'", parse.arguments);
+                // let mut path = String::from("/bin/");
 
-                // Command::new(program)
-                //     .args(parse)
-                //     .status()
-                //     .expect("failed to execute");
+                // path.push_str(&parse.program);
+
+                Command::new(parse.program)
+                    .args(parse.arguments)
+                    .status()
+                    .expect("failed to execute");
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
