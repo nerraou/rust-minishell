@@ -24,14 +24,15 @@ fn main() -> Result<()> {
 
                 println!("parsed '{}'", parse.program);
                 println!("parsed '{:?}'", parse.arguments);
+                println!("parsed redirections'{:?}'", parse.redirections);
                 // let mut path = String::from("/bin/");
 
                 // path.push_str(&parse.program);
 
-                Command::new(parse.program)
-                    .args(parse.arguments)
-                    .status()
-                    .expect("failed to execute");
+                // Command::new(parse.program)
+                //     .args(parse.arguments)
+                //     .status()
+                //     .expect("failed to execute");
             }
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
